@@ -48,21 +48,28 @@ redshift_loss, redshift_mae = model.evaluate(
 )
 '''
 #making the redshift arrays
-z_grids = np.arange(1., 12, .01)
+#z_grids = np.arange(1., 12, .01)
 
 #getting the rest_frame wavelength and model spectrum 
-wavelength_arr, flux_arr = make_model(1e-20)
+#wavelength_arr, flux_arr = make_model(1e-20)
 
 #making the wavelengths into a 2D array
-wavelength_array = np.tile(wavelength_arr, (z_grids.shape[0], 1))
+#wavelength_array = np.tile(wavelength_arr, (z_grids.shape[0], 1))
 
 #convert wavelengths to observed frame
-obs_wave = wavelength_array * (1 + z_grids[:, np.newaxis])
+#obs_wave = wavelength_array * (1 + z_grids[:, np.newaxis])
 
-fluxes = np.zeros((z_grids.shape[0], wavelength_arr.shape[0]))
+##fluxes = np.zeros((z_grids.shape[0], wavelength_arr.shape[0]))
 
-for i in range(z_grids.shape[0]):
-    fluxes[i] = flux_arr
+#for i in range(z_grids.shape[0]):
+#    fluxes[i] = flux_arr
+
+
+fluxes = np.loadtxt('TEST_500.txt')
+wavelength_arr = np.loadtxt('TEST_500_Wavelengths_Microns.txt')
+
+wavelength_array = np.tile(wavelength_arr, (fluxes.shape[0], 1))
+redshift_array = np.loadtxt('TEST_500_Predictions.txt')
 
 
 flux_input = tf.keras.layers.Input(shape=(fluxes.shape[1],), name='flux_input')
@@ -85,7 +92,7 @@ model.compile(
 )
 
 hist = model.fit(
-    {'flux_input': flux_array, 'wavelength_input': wavelength_array},
+    {'flux_input': fluxes, 'wavelength_input': wavelength_array},
     {'redshift_output': redshift_array},
     epochs=10,
     batch_size=32
